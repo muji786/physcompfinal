@@ -35,14 +35,22 @@ function setup() {
     carrier = new p5.Oscillator(random(oscArray));
     carrier.amp(0); // set amplitude
 
+    
+    //****************************************************************************************************
     //THE BELOW ENVELOPE IS NOT YET WORKING.  THIS SHOULD CREATE A SMOOTH START TO EACH NOTE DUE TO 
     //THE LONG ATTACK VALUE OF 0.8
-
+    //****************************************************************************************************
+    
     env = new p5.Env();
     // set attackTime, decayTime, sustainRatio, releaseTime
     env.setADSR(0.8, 0.7, 0.2, 0.8);
     // set attackLevel, releaseLevel
     env.setRange(1.0, 0);
+
+    //****************************************************************************************************
+    //THE ABOVE ENVELOPE IS NOT YET WORKING.  THIS SHOULD CREATE A SMOOTH START TO EACH NOTE DUE TO 
+    //THE LONG ATTACK VALUE OF 0.8
+    //****************************************************************************************************
 
     carrier.freq(carrierBaseFreq); // set frequency
     carrier.start(); // start oscillating
@@ -133,10 +141,10 @@ function delaySounds(){
     delay.process(carrier, .12, .7, 20000);
     delay.setType('pingPong'); 
 
-  // delay.filter(filterFreq, filterRes);
-  // let delTime = map(mouseY, 0, width, .2, .01);
-  // delTime = constrain(delTime, .01, .2);
-  // delay.delayTime(delTime);
+    //delay.filter(filterFreq, filterRes);
+    let delTime = map(mouseY, 0, width, .5, .01);
+    delTime = constrain(delTime, .01, .5);
+    delay.delayTime(delTime);
   // delay.process(carrier, 0.22, feedback, 230000);
 
 }
