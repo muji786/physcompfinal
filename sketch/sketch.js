@@ -5,6 +5,7 @@ let analyzer; // we'll use this visualize the waveform
 let delay;
 let distortion;
 let env;
+let oscType;
 
 //array to be used for assigning the base oscillator frequency in the C minor scale
 let freqArray = [261.626, 293.665, 311.127, 349.228, 391.995, 415.305, 466.164];
@@ -30,7 +31,7 @@ function setup() {
     let r = round(random(0, freqArray.length));
     carrierBaseFreq = freqArray[r];
 
-    let oscType = random(oscArray);
+    oscType = random(oscArray);
 
     carrier = new p5.Oscillator(random(oscArray));
     carrier.amp(0); // set amplitude
@@ -89,6 +90,8 @@ function draw() {
     background(30);
     display();
 
+    text('Carrier Oscillator Type: ' + oscType, width/2, 40);
+
   
 }
 
@@ -128,7 +131,6 @@ function display(){
     text('Modulator Frequency: ' + modFreq.toFixed(3) + ' Hz', 20, 20);
     text('Modulator Amplitude (Modulation Depth): ' + modDepth.toFixed(3), 20, 40);
     text('Carrier Frequency (pre-modulation): ' + carrierBaseFreq + ' Hz', width / 2, 20);
-   // text('Oscillator Type: ' + oscType, width/2, 60);
     //console.log(carrierBaseFreq);
 }
 
