@@ -3,9 +3,18 @@ let modulator; // this oscillator will modulate the frequency of the carrier
 let filter, filterfreq, filterres;
 let analyzer; // we'll use this visualize the waveform
 let delay;
+let distortion;
+let env;
+
+//array to be used for assigning the base oscillator frequency in the C minor scale
+let freqArray = [261.626, 293.665, 311.127, 349.228, 391.995, 415.305, 466.164];
+
+//array to be used for assigning oscillator type
+let oscArray = ['sine', 'square', 'sawtooth', 'triangle'];
+
 
 // the carrier frequency pre-modulation
-let carrierBaseFreq = 440;
+let carrierBaseFreq;
 
 // min/max ranges for modulator
 let modMaxFreq = 112;
@@ -13,14 +22,34 @@ let modMinFreq = 0;
 let modMaxDepth = 150;
 let modMinDepth = -150;
 
+
 function setup() {
     let cnv = createCanvas(800, 400);
     noFill();
 
-    carrier = new p5.Oscillator('sawtooth');
+    let r = round(random(0, freqArray.length));
+    carrierBaseFreq = freqArray[r];
+
+    let oscType = random(oscArray);
+
+    carrier = new p5.Oscillator(random(oscArray));
     carrier.amp(0); // set amplitude
+
+    //THE BELOW ENVELOPE IS NOT YET WORKING.  THIS SHOULD CREATE A SMOOTH START TO EACH NOTE DUE TO 
+    //THE LONG ATTACK VALUE OF 0.8
+
+    env = new p5.Env();
+    // set attackTime, decayTime, sustainRatio, releaseTime
+    env.setADSR(0.8, 0.7, 0.2, 0.8);
+    // set attackLevel, releaseLevel
+    env.setRange(1.0, 0);
+
     carrier.freq(carrierBaseFreq); // set frequency
     carrier.start(); // start oscillating
+
+    distortion = new p5.Distortion();
+    console.log(oscType);
+
 
     filter = new p5.LowPass();
     carrier.disconnect();
@@ -29,6 +58,9 @@ function setup() {
    
 
     carrier.connect(filter);
+    carrier.connect(distortion);
+    //carrier.connect(env);
+    //distortion.drywet(.1);
 
     // try changing the type to 'square', 'sine' or 'triangle'
     modulator = new p5.Oscillator('sine');
@@ -36,7 +68,7 @@ function setup() {
 
     // add the modulator's output to modulate the carrier's frequency
     modulator.disconnect();
-    carrier.freq(modulator);
+    //carrier.freq(modulator);
 
     // create an FFT to analyze the audio
     analyzer = new p5.FFT();
@@ -48,6 +80,7 @@ function setup() {
 function draw() {
     background(30);
     display();
+
   
 }
 
@@ -59,7 +92,7 @@ function display(){
     filterres = map(mouseY, 0, height, 15, 5);
     filter.freq(filterfreq);
     filter.res(filterres);
-    console.log(filterfreq);
+    //console.log(filterfreq);
 
     // change the amplitude of the modulator
     // negative amp reverses the sawtooth waveform, and sounds percussive
@@ -78,7 +111,7 @@ function display(){
         let x = map(i, 0, waveform.length, 0, width);
         let y = map(waveform[i], -1, 1, -height / 2, height / 2);
         vertex(x, y + height / 2);
-        //vertex(y, x + width / 2);
+        //vertex(y, x - width/2);
     }
     endShape();
 
@@ -87,13 +120,17 @@ function display(){
     text('Modulator Frequency: ' + modFreq.toFixed(3) + ' Hz', 20, 20);
     text('Modulator Amplitude (Modulation Depth): ' + modDepth.toFixed(3), 20, 40);
     text('Carrier Frequency (pre-modulation): ' + carrierBaseFreq + ' Hz', width / 2, 20);
-
+   // text('Oscillator Type: ' + oscType, width/2, 60);
+    //console.log(carrierBaseFreq);
 }
 
 function delaySounds(){
 
     delay = new p5.Delay();
-    delay.process(carrier, .3, .7, 2300);
+
+    // .12, .7. 2300 as default
+    // source, delayTime, feedback, filter frequency
+    delay.process(carrier, .12, .7, 20000);
     delay.setType('pingPong'); 
 
   // delay.filter(filterFreq, filterRes);
@@ -107,10 +144,10 @@ function delaySounds(){
 // helper function to toggle sound
 function toggleAudio(cnv) {
     cnv.mouseOver(function () {
-        carrier.amp(1.0, 0.01);
+        carrier.amp(0.2, 0.01);
     });
     cnv.touchStarted(function () {
-        carrier.amp(1.0, 0.01);
+        carrier.amp(0.2, 0.01);
     });
     cnv.mouseOut(function () {
         carrier.amp(0.0, 1.0);
