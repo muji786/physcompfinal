@@ -235,11 +235,12 @@ function serialEvent() {
         // }
         if (sensor4 >= 100) {
             var m = map(sensor4, 25, 1023, 0.1, 1.0);
-
             //carrier.amp(0.2, 0.01);
-            env.setADSR(0.8, 0.7, 0.2, 0.8);
-
-
+            env.play(carrier);
+            carrierBaseFreq = random(freqArray);
+            oscType = random(oscArray);
+            carrier = new p5.Oscillator(random(oscArray));
+            
             console.log("playing Cello at volume : " + m);
 
         }
