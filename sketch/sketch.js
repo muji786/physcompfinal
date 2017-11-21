@@ -1,3 +1,13 @@
+//Serial Variables
+let serial; // variable to hold an instance of the serialport library
+let portName = '/dev/cu.usbmodem1421';
+let inData; // for incoming serial data
+let sensor1;
+let sensor2;
+let sensor3;
+let sensor4;
+
+//Sketch Variables
 let carrier; // this is the oscillator we will hear
 let modulator; // this oscillator will modulate the frequency of the carrier
 let filter, filterfreq, filterres;
@@ -26,6 +36,21 @@ let modMinDepth = -150;
 function setup() {
     let cnv = createCanvas(800, 400);
     noFill();
+
+    //********************************************SERIAL SETUP********************************************
+    //********************************************SERIAL SETUP********************************************
+    //********************************************SERIAL SETUP********************************************
+    //********************************************SERIAL SETUP********************************************
+    serial = new p5.SerialPort(); // make a new instance of the serialport library
+    serial.on('list', printList); // set a callback function for the serialport list event
+    serial.on('connected', serverConnected); // callback for connecting to the server
+    serial.on('open', portOpen); // callback for the port opening
+    serial.on('data', serialEvent); // callback for when new data arrives
+    serial.on('error', serialError); // callback for errors
+    serial.on('close', portClose); // callback for the port closing
+
+    serial.list(); // list the serial ports
+    serial.open(portName); // open a serial port
 
     carrierBaseFreq = random(freqArray);
     oscType = random(oscArray);
@@ -157,4 +182,75 @@ function toggleAudio(cnv) {
     //        env.play(carrier);
     //
     //    });
+}
+
+//**************************************SERIAL FUNCTIONS*******************************************
+//**************************************SERIAL FUNCTIONS*******************************************
+//**************************************SERIAL FUNCTIONS*******************************************
+//**************************************SERIAL FUNCTIONS*******************************************
+
+// get the list of ports:
+function printList(portList) {
+    // portList is an array of serial port names
+    for (var i = 0; i < portList.length; i++) {
+        // Display the list the console:
+        console.log(i + " " + portList[i]);
+    }
+}
+
+function serverConnected() {
+    console.log('connected to server.');
+}
+
+function portOpen() {
+    console.log('the serial port opened.')
+}
+
+function serialEvent() {
+    // read a string from the serial port:
+    var inString = serial.readStringUntil('\r\n');
+    // check to see that there's actually a string there:
+    if (inString.length > 0) {
+        var sensors = split(inString, ',');
+        sensor1 = sensors[1];
+        sensor2 = sensors[0];
+        sensor3 = sensors[2];
+        sensor4 = sensors[3];
+
+        // if (sensor1 >= 25) {
+        //     var m = map(sensor1, 25, 1023, 0.1, 1.0);
+
+        //     }
+        // }
+        // if (sensor2 >= 25) {
+        //     var m = map(sensor2, 25, 1023, 0.1, 1.0);
+
+
+        //     }
+        // }
+        // if (sensor3 >= 25) {
+        //     var m = map(sensor3, 25, 1023, 0.1, 1.0);
+
+        //     }
+        // }
+        if (sensor4 >= 100) {
+            var m = map(sensor4, 25, 1023, 0.1, 1.0);
+
+            //carrier.amp(0.2, 0.01);
+            env.setADSR(0.8, 0.7, 0.2, 0.8);
+
+
+            console.log("playing Cello at volume : " + m);
+
+        }
+    }
+}
+
+
+function serialError(err) {
+    console.log('Something went wrong with the serial port. ' + err);
+}
+
+function portClose() {
+    console.log('The serial port closed.');
 }
