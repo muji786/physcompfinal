@@ -5,6 +5,8 @@ let mic;
 **********************************tone.js Variables********************************/
 //pan the input signal hard right.
 let panner = new Tone.Panner(0);
+//new Tone.LowpassCombFilter ( [ delayTime ] , [ resonance ] , [ dampening ] )
+let LPC = new Tone.LowpassCombFilter (1.5 , 1.5 , .5)
 
 let phaser = new Tone.Phaser({
     "frequency" : 1, 
@@ -12,8 +14,8 @@ let phaser = new Tone.Phaser({
     "baseFrequency" : 10000
 }).toMaster();
 
-let autoFilter = new Tone.AutoFilter("2n").toMaster().start();
-let autoFilter2 = new Tone.AutoFilter("16n").toMaster().start();
+let autoFilter = new Tone.AutoFilter("16n").toMaster().start();
+let autoFilter2 = new Tone.AutoFilter("32n").toMaster().start();
 let comp = new Tone.Compressor(-30, 3);
 let ampEnv = new Tone.AmplitudeEnvelope({
     "attack": 5,
@@ -24,7 +26,7 @@ let ampEnv = new Tone.AmplitudeEnvelope({
 
 let limiter = new Tone.Limiter(-12);
 //let synthArray = ['Tone.PluckSynth', 'Tone.SimpleSynth'];
-let chorus = new Tone.Chorus(40, 2.5, 0.5);
+let chorus = new Tone.Chorus(40, 25, 0.5);
 
 let reverb = new Tone.JCReverb(0.9).connect(Tone.Master);
 let delay2 = new Tone.FeedbackDelay(0.6); 
@@ -32,10 +34,10 @@ let bitcrushVal = 200;
 let bitcrusher = new Tone.BitCrusher(bitcrushVal).toMaster();
 //routing synth through the reverb
 //let synth = new Tone.PolySynth(6, Tone.FMSynth).toMaster();
-let synth = new Tone.PolySynth(6, Tone.FMSynth).chain(phaser, panner, comp, autoFilter, autoFilter2, bitcrusher, ampEnv, delay2, chorus, reverb,  limiter);
+let synth = new Tone.PolySynth(6, Tone.FMSynth, Tone.AMSynth).chain(phaser, panner, comp, autoFilter, autoFilter2, bitcrusher, ampEnv, delay2, chorus, reverb,  limiter);
 //synth.triggerAttackRelease("A4","8n");
 ampEnv.triggerAttackRelease("2t");
-Tone.Transport.bpm.value = 100;
+Tone.Transport.bpm.value = 120;
 
 /*********************************Serial Variables*********************************
 **********************************Serial Variables*********************************
@@ -88,6 +90,8 @@ function setup() {
   // start the Audio Input.
   // By default, it does not .connect() (to the computer speakers)
   mic.start();
+
+  frameRate(20);
     //********************************************SERIAL SETUP********************************************
     //********************************************SERIAL SETUP********************************************
     //********************************************SERIAL SETUP********************************************
@@ -103,10 +107,10 @@ function setup() {
     serial.list(); // list the serial ports
     serial.open(portName); // open a serial port
 
-    carrierBaseFreq = random(freqArray);
+    
     oscType = random(oscArray);
 
-    carrier = new p5.Oscillator(random(oscArray));
+    carrier = new p5.Oscillator("sawtooth");
     carrier.amp(0); // set amplitude
     console.log(oscType);
 
@@ -118,7 +122,7 @@ function setup() {
     // set attackLevel, releaseLevel
     env.setRange(.2, 0);
 
-    carrier.freq(carrierBaseFreq); // set frequency
+ 
     carrier.start(); // start oscillating
 
     //distortion = new p5.Distortion();
@@ -150,9 +154,10 @@ function setup() {
 }
 
 function draw() {
-    background(30);
+    background(0);
+
     display();
-   
+  
 
 }
 
@@ -179,7 +184,7 @@ function display() {
      // stroke(255);
      // strokeWeight(10);
     beginShape();
-    for (let i = 0; i < waveform.length; i++) {
+    for (let i = 0; i < waveform.length; i+=.25) {
 
         let x = map(i, 0, waveform.length, 0, width);
         let y = map(waveform[i], -1, 1, -height / 2, height / 2);
@@ -187,16 +192,17 @@ function display() {
         let mappedX = map(x, 0, waveform.length, 0, 255);
         let mappedY = map(y, 0, waveform.length, 0, 255);
         fill(mappedY+mappedX, mappedX, random(255));
-        stroke(mappedY+mappedX, mappedX, random(255));
+        //stroke(mappedY+mappedX, mappedX, random(255));
+        stroke(0);
         strokeWeight(.8);
         //vertex(x, y + height / 2);
         //vertex(x, y + height / 2);
-        fill(mappedY+mappedX,  random(mappedX), mappedY );
-        stroke(mappedY+mappedX, mappedX, random(255));
+        fill(noise(mappedY+mappedX),  random(mappedX), mappedY );
+        //stroke(mappedY+mappedX, mappedX, random(255));
         rect(x, y+height/2, 20, 20);
         //vertex(x, y+height-100 );
-        fill(-mappedY+mappedX, mappedX, random(255));
-        stroke(-mappedY+mappedX, random(200, 255), mappedY);
+        fill(noise(-mappedY+mappedX), mappedX, random(255));
+        //stroke(-mappedY+mappedX, random(200, 255), mappedY);
         //noStroke();
         rect(x, y+height-height/4, 20, 20);
         rect(x, y+height/4, 20, 20);
@@ -253,6 +259,8 @@ function toggleAudio(cnv) {
     cnv.mouseClicked(function () {
         
         //carrier.amp(0.2, 0.01);
+        carrierBaseFreq = random(freqArray);
+        carrier.freq(carrierBaseFreq); // set frequency
         env.play(carrier);
        //for(let z = 1; z<=5; z++){
         let mult =1;
