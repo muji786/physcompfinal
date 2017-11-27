@@ -6,7 +6,7 @@ let mic;
 //pan the input signal hard right.
 let panner = new Tone.Panner(0);
 //new Tone.LowpassCombFilter ( [ delayTime ] , [ resonance ] , [ dampening ] )
-let LPC = new Tone.LowpassCombFilter (1.5 , 1.5 , .5)
+let LPC = new Tone.LowpassCombFilter (15 , 1.5 , 25)
 
 let phaser = new Tone.Phaser({
     "frequency" : 1, 
@@ -34,7 +34,7 @@ let bitcrushVal = 200;
 let bitcrusher = new Tone.BitCrusher(bitcrushVal).toMaster();
 //routing synth through the reverb
 //let synth = new Tone.PolySynth(6, Tone.FMSynth).toMaster();
-let synth = new Tone.PolySynth(6, Tone.FMSynth, Tone.AMSynth).chain(phaser, panner, comp, autoFilter, autoFilter2, bitcrusher, ampEnv, delay2, chorus, reverb,  limiter);
+let synth = new Tone.PolySynth(6, Tone.FMSynth, Tone.AMSynth).chain(phaser, panner, comp, autoFilter, autoFilter2, bitcrusher, ampEnv, delay2, chorus, reverb, LPC,  limiter);
 //synth.triggerAttackRelease("A4","8n");
 ampEnv.triggerAttackRelease("2t");
 Tone.Transport.bpm.value = 120;
