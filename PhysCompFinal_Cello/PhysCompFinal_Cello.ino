@@ -19,8 +19,9 @@ void loop() {
  Serial.print(",");
 
  int fsr4 = analogRead(A3); // read the input pin
- //int mappedFSR4 = map(fsr4, 0, 1023, 0, 255); // remap the pot value to fit in 1 byte
- Serial.print(","); // print it out the serial port
+ int mappedFSR4 = map(fsr4, 0, 1023, 0, 255); // remap the pot value to fit in 1 byte
+ Serial.print(fsr4); // print it out the serial port
+  Serial.print(","); 
 
  int pot = analogRead(A5); // read the input pin
  int mappedPot = map(pot, 0, 1023, 0, 5); // remap the pot value to fit in 1 byte

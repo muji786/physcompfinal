@@ -6,7 +6,7 @@ let mic;
 //pan the input signal hard right.
 let panner = new Tone.Panner(0);
 //new Tone.LowpassCombFilter ( [ delayTime ] , [ resonance ] , [ dampening ] )
-let LPC = new Tone.LowpassCombFilter (15 , 1.5 , 25)
+let LPC = new Tone.LowpassCombFilter (1 , 1.5 , 25)
 
 let phaser = new Tone.Phaser({
     "frequency" : 1, 
@@ -261,10 +261,10 @@ function toggleAudio(cnv) {
         env.play(carrier);
        //for(let z = 1; z<=5; z++){
         let mult =2;
-        var pattern = new Tone.Pattern(function(time, note){
-    synth.triggerAttackRelease(note, 2);
-    //Cm SCALE
-}, [261.626, mult * 261.626, mult * 293.665, mult * 311.127, mult * 349.228, mult * 391.995, mult * 415.305, mult * 466.164, mult * 523.25,]);
+       var pattern = new Tone.Pattern(function(time, note){
+       synth.triggerAttackRelease(note, 2);
+//     //Cm SCALE
+ }, [261.626, mult * 261.626, mult * 293.665, mult * 311.127, mult * 349.228, mult * 391.995, mult * 415.305, mult * 466.164, mult * 523.25,]);
    //C MAJOR SCALE
    //[mult * 261.626, mult * 293.66, mult * 329.63, mult * 349.23, mult * 392.00, mult * 440.00, mult * 493.88, mult * 523.25]);
 //begin at the beginning
@@ -277,15 +277,15 @@ pattern.start(0);
 **********************************Second Pattern and Synth*********************************
 **********************************Second Pattern and Synth********************************/
 
-//     var pattern2 = new Tone.Pattern(function(time, note){
-//     synth.triggerAttackRelease(note, 1);
-//     //Cm SCALE
-// }, [261.626, mult/2 * 261.626, mult/2 * 293.665, mult/2 * 311.127, mult/2 * 349.228, mult/2 * 391.995, mult/2 * 415.305, mult/2 * 466.164, mult/2 * 523.25,]);
-//    //C MAJOR SCALE
-//    //[mult * 261.626, mult * 293.66, mult * 329.63, mult * 349.23, mult * 392.00, mult * 440.00, mult * 493.88, mult * 523.25]);
-// pattern2.start(0);
+    var pattern2 = new Tone.Pattern(function(time, note){
+    synth.triggerAttackRelease(note, 1);
+    //Cm SCALE
+}, [mult/2 * 261.626, mult/2 * 293.665, mult/2 * 311.127, mult/2 * 349.228, mult/2 * 391.995, mult/2 * 415.305, mult/2 * 466.164, mult/2 * 523.25,]);
+   //C MAJOR SCALE
+   //[mult * 261.626, mult * 293.66, mult * 329.63, mult * 349.23, mult * 392.00, mult * 440.00, mult * 493.88, mult * 523.25]);
+pattern2.start(0);
    
-//     pattern2.pattern = "random";
+    pattern2.pattern = "random";
      
 /*********************************Second Pattern and Synth*********************************
 **********************************Second Pattern and Synth*********************************
@@ -294,13 +294,36 @@ pattern.start(0);
 
 
 //humanize the playback of the pattern
-pattern.humanize = "24n";
+pattern.humanize = "4n";
 //stop playing after 4 measures
-//pattern.stop("4m");
-
+// pattern.stop("4m");
+// pattern2.stop("4m");
     });
 
 }
+
+
+//**************************************Single Note Loop*******************************************
+//**************************************Single Note Loop*******************************************
+//**************************************Single Note Loop*******************************************
+//**************************************Single Note Loop*******************************************
+
+//create a looped note event every half-note
+var note = new Tone.Event(function(time, pitch){
+    synth.triggerAttackRelease(pitch, "16n", time);
+}, ["D4"]);
+
+//set the note to loop every half measure
+note.set({
+    "loop" : true,
+    "loopEnd" : "1m"
+});
+
+//start the note at the beginning of the Transport timeline
+note.start();
+
+//stop the note on the 4th measure
+note.stop("4m");
 
 //**************************************SERIAL FUNCTIONS*******************************************
 //**************************************SERIAL FUNCTIONS*******************************************
@@ -347,34 +370,36 @@ function serialEvent() {
 
         //     }
         // }
-        // if (sensor3 >= 25) {
-        //     var m = map(sensor3, 25, 1023, 0.1, 1.0);
+        if (sensor3 >= 100) {
+            //var m = map(sensor3, 25, 1023, 0.1, 1.0);
 
-        //     }
-        // }
+                let mult = 1;
+        var pattern = new Tone.Pattern(function(time, note){
+    synth.triggerAttackRelease(note, .1);
+}, [mult * 261.626, mult * 293.665, mult * 311.127, mult * 349.228, mult * 391.995, mult * 415.305, mult * 466.164]);
+   pattern.pattern = "random";
+    console.log(mult);
+       
+//begin at the beginning
+pattern.start(0);
+
+            }
+        }
         if (sensor4 >= 100) {
             var m = map(sensor4, 25, 1023, 0.1, 1.0);
             //carrier.amp(0.2, 0.01);
-            env.play(synth);
+            env.play(carrier);
             //carrierBaseFreq = random(freqArray);
             //oscType = random(oscArray);
             //carrier = new p5.Oscillator(random(oscArray));
             
             console.log("playing Cello at volume : " + m);
    
-        let mult = 1;
-        var pattern = new Tone.Pattern(function(time, note){
-    synth.triggerAttackRelease(note, .1);
-}, [mult * 261.626, mult * 293.665, mult * 311.127, mult * 349.228, mult * 391.995, mult * 415.305, mult * 466.164]);
-   pattern.pattern = "random";
-    //console.log(mult);
-       
-//begin at the beginning
-pattern.start(0);
+
 
         }
     }
-}
+
 
 
 function serialError(err) {
