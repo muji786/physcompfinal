@@ -14,7 +14,7 @@ let phaser = new Tone.Phaser({
     "baseFrequency" : 10000
 }).toMaster();
 
-let autoFilter = new Tone.AutoFilter("16n").toMaster().start();
+let autoFilter = new Tone.AutoFilter("4n").toMaster().start();
 let autoFilter2 = new Tone.AutoFilter("32n").toMaster().start();
 let comp = new Tone.Compressor(-30, 3);
 let ampEnv = new Tone.AmplitudeEnvelope({
@@ -110,7 +110,7 @@ function setup() {
     
     oscType = random(oscArray);
 
-    carrier = new p5.Oscillator("sawtooth");
+    carrier = new p5.Oscillator("square");
     carrier.amp(0); // set amplitude
     console.log(oscType);
 
@@ -155,10 +155,7 @@ function setup() {
 
 function draw() {
     background(0);
-
     display();
-  
-
 }
 
 function display() {
@@ -204,9 +201,9 @@ function display() {
         fill(noise(-mappedY+mappedX), mappedX, random(255));
         //stroke(-mappedY+mappedX, random(200, 255), mappedY);
         //noStroke();
-        rect(x, y+height-height/4, 20, 20);
-        rect(x, y+height/4, 20, 20);
-        vertex(x, y + height / 2);
+        rect(x, y+height-height/4, 20, 2);
+        rect(x, y+height/4, 20, 2);
+        //vertex(x, y + height / 2);
     }
      for (var x = gridSize; x <= width - gridSize; x += gridSize) {
     for (var y = gridSize; y <= height - gridSize; y += gridSize) {
@@ -218,25 +215,25 @@ function display() {
       var vol = mic.getLevel();
      noFill();
      stroke(255);
-     strokeWeight(vol);
+     strokeWeight(.1);
 
       rect(x-1, y-1, 2, 2);
-      x++;
-    
-      
-      //stroke(255, 50);
+     
       //line(x, y, width/2, height/2);
     }
   }
     endShape();
-
+    push();
+    strokeWeight(1);
+      stroke(255);
 
     // add a note about what's happening
     // text('Modulator Frequency: ' + modFreq.toFixed(3) + ' Hz', 20, 20);
     // text('Modulator Amplitude (Modulation Depth): ' + modDepth.toFixed(3), 20, 40);
-    // text('Carrier Frequency (pre-modulation): ' + carrierBaseFreq + ' Hz', width / 2, 20);
+    text('Carrier Frequency (pre-modulation): ' + carrierBaseFreq + ' Hz', width / 2, 20);
     // text('Carrier Oscillator Type: ' + oscType, width / 2, 40);
     //console.log(oscType);
+    pop();
 }
 
 function delaySounds() {
@@ -263,21 +260,41 @@ function toggleAudio(cnv) {
         carrier.freq(carrierBaseFreq); // set frequency
         env.play(carrier);
        //for(let z = 1; z<=5; z++){
-        let mult =1;
+        let mult =2;
         var pattern = new Tone.Pattern(function(time, note){
-    synth.triggerAttackRelease(note, 1);
+    synth.triggerAttackRelease(note, 2);
     //Cm SCALE
 }, [261.626, mult * 261.626, mult * 293.665, mult * 311.127, mult * 349.228, mult * 391.995, mult * 415.305, mult * 466.164, mult * 523.25,]);
    //C MAJOR SCALE
    //[mult * 261.626, mult * 293.66, mult * 329.63, mult * 349.23, mult * 392.00, mult * 440.00, mult * 493.88, mult * 523.25]);
+//begin at the beginning
 pattern.start(0);
    
     pattern.pattern = "random";
     console.log(mult);
+
+/*********************************Second Pattern and Synth*********************************
+**********************************Second Pattern and Synth*********************************
+**********************************Second Pattern and Synth********************************/
+
+//     var pattern2 = new Tone.Pattern(function(time, note){
+//     synth.triggerAttackRelease(note, 1);
+//     //Cm SCALE
+// }, [261.626, mult/2 * 261.626, mult/2 * 293.665, mult/2 * 311.127, mult/2 * 349.228, mult/2 * 391.995, mult/2 * 415.305, mult/2 * 466.164, mult/2 * 523.25,]);
+//    //C MAJOR SCALE
+//    //[mult * 261.626, mult * 293.66, mult * 329.63, mult * 349.23, mult * 392.00, mult * 440.00, mult * 493.88, mult * 523.25]);
+// pattern2.start(0);
+   
+//     pattern2.pattern = "random";
      
-//begin at the beginning
+/*********************************Second Pattern and Synth*********************************
+**********************************Second Pattern and Synth*********************************
+**********************************Second Pattern and Synth********************************/
+
+
+
 //humanize the playback of the pattern
-//pattern.humanize = "244n";
+pattern.humanize = "24n";
 //stop playing after 4 measures
 //pattern.stop("4m");
 
