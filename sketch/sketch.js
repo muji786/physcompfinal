@@ -1,13 +1,57 @@
-//Serial Variables
+let mic;
+
+/*********************************tone.js Variables*********************************
+**********************************tone.js Variables*********************************
+**********************************tone.js Variables********************************/
+//pan the input signal hard right.
+let panner = new Tone.Panner(0);
+
+let phaser = new Tone.Phaser({
+    "frequency" : 1, 
+    "octaves" : 5, 
+    "baseFrequency" : 10000
+}).toMaster();
+
+let autoFilter = new Tone.AutoFilter("2n").toMaster().start();
+let autoFilter2 = new Tone.AutoFilter("16n").toMaster().start();
+let comp = new Tone.Compressor(-30, 3);
+let ampEnv = new Tone.AmplitudeEnvelope({
+    "attack": 5,
+    "decay": 0.2,
+    "sustain": 0.2,
+    "release": 0.2
+}).toMaster();
+
+let limiter = new Tone.Limiter(-12);
+//let synthArray = ['Tone.PluckSynth', 'Tone.SimpleSynth'];
+let chorus = new Tone.Chorus(40, 2.5, 0.5);
+
+let reverb = new Tone.JCReverb(0.9).connect(Tone.Master);
+let delay2 = new Tone.FeedbackDelay(0.6); 
+let bitcrushVal = 200;
+let bitcrusher = new Tone.BitCrusher(bitcrushVal).toMaster();
+//routing synth through the reverb
+//let synth = new Tone.PolySynth(6, Tone.FMSynth).toMaster();
+let synth = new Tone.PolySynth(6, Tone.FMSynth).chain(phaser, panner, comp, autoFilter, autoFilter2, bitcrusher, ampEnv, delay2, chorus, reverb,  limiter);
+//synth.triggerAttackRelease("A4","8n");
+ampEnv.triggerAttackRelease("2t");
+Tone.Transport.bpm.value = 100;
+
+/*********************************Serial Variables*********************************
+**********************************Serial Variables*********************************
+**********************************Serial Variables********************************/
 let serial; // variable to hold an instance of the serialport library
-let portName = '/dev/cu.usbmodem1421';
+let portName = '/dev/cu.usbmodem1461';
 let inData; // for incoming serial data
 let sensor1;
 let sensor2;
 let sensor3;
 let sensor4;
+let sensor5;
 
-//Sketch Variables
+/*********************************p5.sound Variables*********************************
+**********************************p5.sound Variables*********************************
+**********************************p5.sound Variables********************************/
 let carrier; // this is the oscillator we will hear
 let modulator; // this oscillator will modulate the frequency of the carrier
 let filter, filterfreq, filterres;
@@ -17,6 +61,8 @@ let distortion;
 let env;
 let oscType = "sine"; // default value is sine
 
+let cnv = 0;
+let gridSize = 10;
 //array to be used for assigning the base oscillator frequency in the C minor scale
 let freqArray = [261.626, 293.665, 311.127, 349.228, 391.995, 415.305, 466.164];
 
@@ -34,9 +80,14 @@ let modMinDepth = -150;
 
 
 function setup() {
-    let cnv = createCanvas(800, 400);
-    noFill();
+    cnv = createCanvas(800, 400);
+    //noFill();
+  // Create an Audio input
+  mic = new p5.AudioIn();
 
+  // start the Audio Input.
+  // By default, it does not .connect() (to the computer speakers)
+  mic.start();
     //********************************************SERIAL SETUP********************************************
     //********************************************SERIAL SETUP********************************************
     //********************************************SERIAL SETUP********************************************
@@ -57,32 +108,25 @@ function setup() {
 
     carrier = new p5.Oscillator(random(oscArray));
     carrier.amp(0); // set amplitude
-
-    //****************************************************************************************************
-    //THE BELOW ENVELOPE IS NOT YET WORKING.  THIS SHOULD CREATE A SMOOTH START TO EACH NOTE DUE TO 
-    //THE LONG ATTACK VALUE OF 0.8
-    //****************************************************************************************************
+    console.log(oscType);
 
     env = new p5.Env();
     // set attackTime, decayTime, sustainRatio, releaseTime
-    env.setADSR(1, 1, 0.2, 3);
+    //env.setADSR(10, .5, 1, 1);
+    env.setADSR(10, 0.5, 0.1, 0.5);
+    //env.setADSR(10, .5, 0.1, 0.5);
     // set attackLevel, releaseLevel
-    env.setRange(1, 0);
-
-    //****************************************************************************************************
-    //THE ABOVE ENVELOPE IS NOT YET WORKING.  THIS SHOULD CREATE A SMOOTH START TO EACH NOTE DUE TO 
-    //THE LONG ATTACK VALUE OF 0.8
-    //****************************************************************************************************
+    env.setRange(.2, 0);
 
     carrier.freq(carrierBaseFreq); // set frequency
     carrier.start(); // start oscillating
 
-    distortion = new p5.Distortion();
+    //distortion = new p5.Distortion();
 
     filter = new p5.LowPass();
     carrier.disconnect();
 
-    // delaySounds();
+    //delaySounds();
 
     carrier.connect(filter);
     carrier.connect(distortion);
@@ -100,15 +144,15 @@ function setup() {
     analyzer = new p5.FFT();
 
     // fade carrier in/out on mouseover / touch start
-    toggleAudio(cnv);
+     toggleAudio(cnv);
+     Tone.Transport.start();
+
 }
 
 function draw() {
     background(30);
     display();
-
-    //    text('Carrier Oscillator Type: ' + oscType, width / 2, 40);
-
+   
 
 }
 
@@ -116,7 +160,7 @@ function display() {
     // map mouseY to modulator freq between a maximum and minimum frequency
     let modFreq = map(mouseY, height, 0, modMinFreq, modMaxFreq);
     modulator.freq(modFreq);
-    filterfreq = map(mouseX, 0, width, 10, 22050);
+    filterfreq = map(mouseX, 0, width, 10, 1000);
     filterres = map(mouseY, 0, height, 15, 5);
     filter.freq(filterfreq);
     filter.res(filterres);
@@ -132,28 +176,64 @@ function display() {
     waveform = analyzer.waveform();
 
     // draw the shape of the waveform
-    stroke(255);
-    strokeWeight(10);
+     // stroke(255);
+     // strokeWeight(10);
     beginShape();
     for (let i = 0; i < waveform.length; i++) {
+
         let x = map(i, 0, waveform.length, 0, width);
         let y = map(waveform[i], -1, 1, -height / 2, height / 2);
+
+        let mappedX = map(x, 0, waveform.length, 0, 255);
+        let mappedY = map(y, 0, waveform.length, 0, 255);
+        fill(mappedY+mappedX, mappedX, random(255));
+        stroke(mappedY+mappedX, mappedX, random(255));
+        strokeWeight(.8);
+        //vertex(x, y + height / 2);
+        //vertex(x, y + height / 2);
+        fill(mappedY+mappedX,  random(mappedX), mappedY );
+        stroke(mappedY+mappedX, mappedX, random(255));
+        rect(x, y+height/2, 20, 20);
+        //vertex(x, y+height-100 );
+        fill(-mappedY+mappedX, mappedX, random(255));
+        stroke(-mappedY+mappedX, random(200, 255), mappedY);
+        //noStroke();
+        rect(x, y+height-height/4, 20, 20);
+        rect(x, y+height/4, 20, 20);
         vertex(x, y + height / 2);
-        //vertex(y, x - width/2);
     }
+     for (var x = gridSize; x <= width - gridSize; x += gridSize) {
+    for (var y = gridSize; y <= height - gridSize; y += gridSize) {
+      noStroke();
+      fill(255, 255);
+      let mappedMouseX = map(mouseX, width, height, 20, 0);
+      let mappedMouseY = map(mouseY, width, height, 20, 0);
+      // Get the overall volume (between 0 and 1.0)
+      var vol = mic.getLevel();
+     noFill();
+     stroke(255);
+     strokeWeight(vol);
+
+      rect(x-1, y-1, 2, 2);
+      x++;
+    
+      
+      //stroke(255, 50);
+      //line(x, y, width/2, height/2);
+    }
+  }
     endShape();
 
-    strokeWeight(1);
+
     // add a note about what's happening
-    text('Modulator Frequency: ' + modFreq.toFixed(3) + ' Hz', 20, 20);
-    text('Modulator Amplitude (Modulation Depth): ' + modDepth.toFixed(3), 20, 40);
-    text('Carrier Frequency (pre-modulation): ' + carrierBaseFreq + ' Hz', width / 2, 20);
-    text('Carrier Oscillator Type: ' + oscType, width / 2, 40);
-    console.log(oscType);
+    // text('Modulator Frequency: ' + modFreq.toFixed(3) + ' Hz', 20, 20);
+    // text('Modulator Amplitude (Modulation Depth): ' + modDepth.toFixed(3), 20, 40);
+    // text('Carrier Frequency (pre-modulation): ' + carrierBaseFreq + ' Hz', width / 2, 20);
+    // text('Carrier Oscillator Type: ' + oscType, width / 2, 40);
+    //console.log(oscType);
 }
 
 function delaySounds() {
-
     delay = new p5.Delay();
     // .12, .7. 2300 as default
     // source, delayTime, feedback, filter frequency
@@ -171,17 +251,30 @@ function delaySounds() {
 // helper function to toggle sound
 function toggleAudio(cnv) {
     cnv.mouseClicked(function () {
+        
         //carrier.amp(0.2, 0.01);
         env.play(carrier);
+       //for(let z = 1; z<=5; z++){
+        let mult =1;
+        var pattern = new Tone.Pattern(function(time, note){
+    synth.triggerAttackRelease(note, 1);
+    //Cm SCALE
+}, [261.626, mult * 261.626, mult * 293.665, mult * 311.127, mult * 349.228, mult * 391.995, mult * 415.305, mult * 466.164, mult * 523.25,]);
+   //C MAJOR SCALE
+   //[mult * 261.626, mult * 293.66, mult * 329.63, mult * 349.23, mult * 392.00, mult * 440.00, mult * 493.88, mult * 523.25]);
+pattern.start(0);
+   
+    pattern.pattern = "random";
+    console.log(mult);
+     
+//begin at the beginning
+//humanize the playback of the pattern
+//pattern.humanize = "244n";
+//stop playing after 4 measures
+//pattern.stop("4m");
+
     });
-    //    cnv.touchStarted(function () {
-    //        // carrier.amp(0.2, 0.01);
-    //    });
-    //    cnv.mouseOut(function () {
-    //        //carrier.amp(0.0, 1.0);
-    //        env.play(carrier);
-    //
-    //    });
+
 }
 
 //**************************************SERIAL FUNCTIONS*******************************************
@@ -216,6 +309,7 @@ function serialEvent() {
         sensor2 = sensors[0];
         sensor3 = sensors[2];
         sensor4 = sensors[3];
+        sensor5 = sensors[4];
 
         // if (sensor1 >= 25) {
         //     var m = map(sensor1, 25, 1023, 0.1, 1.0);
@@ -236,12 +330,22 @@ function serialEvent() {
         if (sensor4 >= 100) {
             var m = map(sensor4, 25, 1023, 0.1, 1.0);
             //carrier.amp(0.2, 0.01);
-            env.play(carrier);
-            carrierBaseFreq = random(freqArray);
-            oscType = random(oscArray);
-            carrier = new p5.Oscillator(random(oscArray));
+            env.play(synth);
+            //carrierBaseFreq = random(freqArray);
+            //oscType = random(oscArray);
+            //carrier = new p5.Oscillator(random(oscArray));
             
             console.log("playing Cello at volume : " + m);
+   
+        let mult = 1;
+        var pattern = new Tone.Pattern(function(time, note){
+    synth.triggerAttackRelease(note, .1);
+}, [mult * 261.626, mult * 293.665, mult * 311.127, mult * 349.228, mult * 391.995, mult * 415.305, mult * 466.164]);
+   pattern.pattern = "random";
+    //console.log(mult);
+       
+//begin at the beginning
+pattern.start(0);
 
         }
     }
