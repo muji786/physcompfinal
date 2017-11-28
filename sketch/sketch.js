@@ -383,7 +383,8 @@ function serialEvent() {
                 //begin at the beginning
 
                 pattern.start(0);
-            }
+            } else pattern.stop(4 m);
+
             oldvalue = sensor3 + 10;
         }
     }
