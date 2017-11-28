@@ -370,15 +370,15 @@ function serialEvent() {
 
         //     }
         // }
-        if (sensor3 >= 100) {
+        if (sensor3 >= 0) {
             //var m = map(sensor3, 25, 1023, 0.1, 1.0);
 
-                let mult = 1;
-        var pattern = new Tone.Pattern(function(time, note){
+    let mult = 1;
+    var pattern = new Tone.Pattern(function(time, note){
     synth.triggerAttackRelease(note, .1);
 }, [mult * 261.626, mult * 293.665, mult * 311.127, mult * 349.228, mult * 391.995, mult * 415.305, mult * 466.164]);
    pattern.pattern = "random";
-    console.log(mult);
+    console.log(sensor3);
        
 //begin at the beginning
 pattern.start(0);
