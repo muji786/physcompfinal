@@ -15,7 +15,7 @@ let phaser = new Tone.Phaser({
 }).toMaster();
 
 let autoFilter = new Tone.AutoFilter("4n").toMaster().start();
-let autoFilter2 = new Tone.AutoFilter("32n").toMaster().start();
+let autoFilter2 = new Tone.AutoFilter("16n").toMaster().start();
 let comp = new Tone.Compressor(-30, 3);
 let ampEnv = new Tone.AmplitudeEnvelope({
     "attack": 5,
@@ -30,7 +30,7 @@ let chorus = new Tone.Chorus(40, 25, 0.5);
 
 let reverb = new Tone.JCReverb(0.9).connect(Tone.Master);
 let delay2 = new Tone.FeedbackDelay(0.6);
-let bitcrushVal = 200;
+let bitcrushVal = 20;
 let bitcrusher = new Tone.BitCrusher(bitcrushVal).toMaster();
 //routing synth through the reverb
 //let synth = new Tone.PolySynth(6, Tone.FMSynth).toMaster();
@@ -38,6 +38,10 @@ let synth = new Tone.PolySynth(6, Tone.FMSynth, Tone.AMSynth).chain(phaser, pann
 //synth.triggerAttackRelease("A4","8n");
 ampEnv.triggerAttackRelease("2t");
 Tone.Transport.bpm.value = 120;
+let mult = 1;
+let pattern = new Tone.Pattern(function (time, note) {
+                    synth.triggerAttackRelease(note, .1);
+                }, [mult * 261.626, mult * 293.665, mult * 311.127, mult * 349.228, mult * 391.995, mult * 415.305, mult * 466.164]);
 
 /*********************************Serial Variables*********************************
  **********************************Serial Variables*********************************
@@ -79,7 +83,9 @@ let modMaxFreq = 112;
 let modMinFreq = 0;
 let modMaxDepth = 150;
 let modMinDepth = -150;
-let oldvalue = 0;
+let oldvalue1, oldvalue2, oldvalue3, oldvalue4 = 0;
+
+
 
 function setup() {
     cnv = createCanvas(800, 400);
@@ -160,13 +166,13 @@ function draw() {
 
 function display() {
     // map mouseY to modulator freq between a maximum and minimum frequency
-    let modFreq = map(mouseY, height, 0, modMinFreq, modMaxFreq);
-    modulator.freq(modFreq);
-    filterfreq = map(mouseX, 0, width, 10, 1000);
-    filterres = map(mouseY, 0, height, 15, 5);
-    filter.freq(filterfreq);
-    filter.res(filterres);
-    //console.log(filterfreq);
+    // let modFreq = map(mouseY, height, 0, modMinFreq, modMaxFreq);
+    // modulator.freq(modFreq);
+    // filterfreq = map(mouseX, 0, width, 10, 22050);
+    // filterres = map(mouseY, 0, height, 15, 5);
+    // filter.freq(filterfreq);
+    // filter.res(filterres);
+    //console.log(filterfreq + " " + filterres);
 
     // change the amplitude of the modulator
     // negative amp reverses the sawtooth waveform, and sounds percussive
@@ -243,7 +249,7 @@ function delaySounds() {
     delay.process(carrier, .12, .7, 20000);
     delay.setType('pingPong');
 
-    //delay.filter(filterFreq, filterRes);
+    //delay.filter(filterFreq, filterres);
     let delTime = map(mouseY, 0, width, .5, .01);
     delTime = constrain(delTime, .01, .5);
     delay.delayTime(delTime);
@@ -260,32 +266,32 @@ function toggleAudio(cnv) {
         carrier.freq(carrierBaseFreq); // set frequency
         env.play(carrier);
         //for(let z = 1; z<=5; z++){
-        let mult = 2;
-        var pattern = new Tone.Pattern(function (time, note) {
-            synth.triggerAttackRelease(note, 2);
-            //     //Cm SCALE
-        }, [261.626, mult * 261.626, mult * 293.665, mult * 311.127, mult * 349.228, mult * 391.995, mult * 415.305, mult * 466.164, mult * 523.25, ]);
-        //C MAJOR SCALE
-        //[mult * 261.626, mult * 293.66, mult * 329.63, mult * 349.23, mult * 392.00, mult * 440.00, mult * 493.88, mult * 523.25]);
-        //begin at the beginning
-        pattern.start(0);
+        // let mult = 2;
+        // var pattern = new Tone.Pattern(function (time, note) {
+        //     synth.triggerAttackRelease(note, 2);
+        //     //     //Cm SCALE
+        // }, [261.626, mult * 261.626, mult * 293.665, mult * 311.127, mult * 349.228, mult * 391.995, mult * 415.305, mult * 466.164, mult * 523.25, ]);
+        // //C MAJOR SCALE
+        // //[mult * 261.626, mult * 293.66, mult * 329.63, mult * 349.23, mult * 392.00, mult * 440.00, mult * 493.88, mult * 523.25]);
+        // //begin at the beginning
+        // pattern.start(0);
 
-        pattern.pattern = "random";
-        console.log(mult);
+        // pattern.pattern = "random";
+        // console.log(mult);
 
         /*********************************Second Pattern and Synth*********************************
          **********************************Second Pattern and Synth*********************************
          **********************************Second Pattern and Synth********************************/
 
-        var pattern2 = new Tone.Pattern(function (time, note) {
-            synth.triggerAttackRelease(note, 1);
-            //Cm SCALE
-        }, [mult / 2 * 261.626, mult / 2 * 293.665, mult / 2 * 311.127, mult / 2 * 349.228, mult / 2 * 391.995, mult / 2 * 415.305, mult / 2 * 466.164, mult / 2 * 523.25, ]);
-        //C MAJOR SCALE
-        //[mult * 261.626, mult * 293.66, mult * 329.63, mult * 349.23, mult * 392.00, mult * 440.00, mult * 493.88, mult * 523.25]);
-        pattern2.start(0);
+        // var pattern2 = new Tone.Pattern(function (time, note) {
+        //     synth.triggerAttackRelease(note, 1);
+        //     //Cm SCALE
+        // }, [mult / 2 * 261.626, mult / 2 * 293.665, mult / 2 * 311.127, mult / 2 * 349.228, mult / 2 * 391.995, mult / 2 * 415.305, mult / 2 * 466.164, mult / 2 * 523.25, ]);
+        // //C MAJOR SCALE
+        // //[mult * 261.626, mult * 293.66, mult * 329.63, mult * 349.23, mult * 392.00, mult * 440.00, mult * 493.88, mult * 523.25]);
+        // pattern2.start(0);
 
-        pattern2.pattern = "random";
+        // pattern2.pattern = "random";
 
         /*********************************Second Pattern and Synth*********************************
          **********************************Second Pattern and Synth*********************************
@@ -294,7 +300,6 @@ function toggleAudio(cnv) {
 
 
         //humanize the playback of the pattern
-        pattern.humanize = "4n";
         //stop playing after 4 measures
         // pattern.stop("4m");
         // pattern2.stop("4m");
@@ -302,33 +307,6 @@ function toggleAudio(cnv) {
 
 }
 
-
-//**************************************Single Note Loop*******************************************
-//**************************************Single Note Loop*******************************************
-//**************************************Single Note Loop*******************************************
-//**************************************Single Note Loop*******************************************
-
-//create a looped note event every half-note
-var note = new Tone.Event(function (time, pitch) {
-    synth.triggerAttackRelease(pitch, "16n", time);
-}, ["D4"]);
-
-//set the note to loop every half measure
-note.set({
-    "loop": true,
-    "loopEnd": "1m"
-});
-
-//start the note at the beginning of the Transport timeline
-note.start();
-
-//stop the note on the 4th measure
-note.stop("4m");
-
-//**************************************SERIAL FUNCTIONS*******************************************
-//**************************************SERIAL FUNCTIONS*******************************************
-//**************************************SERIAL FUNCTIONS*******************************************
-//**************************************SERIAL FUNCTIONS*******************************************
 
 // get the list of ports:
 function printList(portList) {
@@ -372,34 +350,46 @@ function serialEvent() {
         // }
         if (sensor3 >= 25) {
             //var m = map(sensor3, 25, 1023, 0.1, 1.0);
-            if (sensor3 > oldvalue) {
-                let mult = 1;
-                var pattern = new Tone.Pattern(function (time, note) {
-                    synth.triggerAttackRelease(note, .1);
-                }, [mult * 261.626, mult * 293.665, mult * 311.127, mult * 349.228, mult * 391.995, mult * 415.305, mult * 466.164]);
+            
+                
                 pattern.pattern = "random";
+                pattern.humanize = "4n";
+
                 console.log(sensor3);
 
                 //begin at the beginning
-
+            // if (sensor3 > oldvalue3) {
                 pattern.start(0);
-            } else pattern.stop(4 m);
-
-            oldvalue = sensor3 + 10;
+            // } 
+            // else 
+            //     pattern.stop();
+            // console.log(pattern);
+            // oldvalue3 = sensor3 + 10;
         }
     }
     if (sensor4 >= 100) {
-        var m = map(sensor4, 25, 1023, 0.1, 1.0);
+        //var m = map(sensor4, 25, 1023, 0.1, 1.0);
         //carrier.amp(0.2, 0.01);
+        if (sensor4 >= oldvalue4){
+        carrierBaseFreq = random(freqArray);
+        carrier.freq(carrierBaseFreq); // set frequency
+
         env.play(carrier);
+    }
+        oldvalue4 = sensor4;
         //carrierBaseFreq = random(freqArray);
         //oscType = random(oscArray);
         //carrier = new p5.Oscillator(random(oscArray));
 
-        console.log("playing Cello at volume : " + m);
+        console.log(sensor4);
 
-
-
+    }
+    if (sensor5 > 0) {
+        filterfreq = map(sensor5, 0, 1023, 10, 22050);
+        //filterres = map(sensor5, 0, 1023, 15, 5);
+        filter.freq(filterfreq);
+        //filter.res(filterres);
+        console.log (sensor5 + " " + filterfreq);
     }
 }
 
