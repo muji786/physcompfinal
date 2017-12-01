@@ -46,12 +46,15 @@ void setup() {
 
 void loop() {
   // Play notes from F3 (53) to A6 (93):
-  MIDI.sendControlChange(07,127,1);
+  for (int i = 0; i <=127, i++)
+    {
+      MIDI.sendControlChange(07,i,1);
+    }
   delay(1000);
-  for (int note = 53; note <= 93; note ++) {
-    // Send a NoteOn message, wait a second, turn the note off
-    MIDI.sendNoteOn(note, velocity, channel);  
-    delay(1000);
-    MIDI.sendNoteOff(note, velocity, channel);
-  }
+//  for (int note = 53; note <= 93; note ++) {
+//    // Send a NoteOn message, wait a second, turn the note off
+//    MIDI.sendNoteOn(note, velocity, channel);  
+//    delay(1000);
+//    MIDI.sendNoteOff(note, velocity, channel);
+//  }
 }
