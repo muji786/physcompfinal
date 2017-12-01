@@ -46,7 +46,7 @@ void setup() {
 
 void loop() {
   // Play notes from F3 (53) to A6 (93):
-  for (int i = 0; i <=127, i++)
+  for (int i = 0; i <=127; i++)
     {
       MIDI.sendControlChange(07,i,1);
     }
