@@ -22,7 +22,7 @@
 #include <midi_Settings.h>
 struct MySettings : public midi::DefaultSettings
 {
-  //By default, the Arduino MIDI Library tries to be smart by 
+  //By default, the Arduino MIDI Library tries to be smart by
   //excluding the CC byte if it doesn't change (to save bandwidth).
   //This is a problem when starting up Serial<->MIDI software
   //after starting up the Arduino because we miss the first CC byte.
@@ -30,7 +30,7 @@ struct MySettings : public midi::DefaultSettings
   //See https://github.com/projectgus/hairless-midiserial/issues/16 for details.
   static const bool UseRunningStatus = false;
   // Set MIDI baud rate. MIDI has a default baud rate of 31250,
-  // but we're setting our baud rate higher in order to 
+  // but we're setting our baud rate higher in order to
   // properly decode and read outgoing MIDI data on the computer.
   static const long BaudRate = 115200;
 };
@@ -45,16 +45,21 @@ void setup() {
 }
 
 void loop() {
-  // Play notes from F3 (53) to A6 (93):
-  for (int i = 0; i <=127; i++)
-    {
-      MIDI.sendControlChange(07,i,1);
-    }
-  delay(1000);
-//  for (int note = 53; note <= 93; note ++) {
-//    // Send a NoteOn message, wait a second, turn the note off
-//    MIDI.sendNoteOn(note, velocity, channel);  
-//    delay(1000);
-//    MIDI.sendNoteOff(note, velocity, channel);
-//  }
+  int pot = analogRead(A4) / 8; // read the input pin and divide by 8 to get between 0-127 for midi
+  int lastPot = 0;
+
+  if (lastPot != pot) {
+    MIDI.sendControlChange(01, pot, 1);
+    lastPot = pot;
+    delay(1000);
+  }
+  
+  int sensor = analogRead(A3)/8; // read the input pin
+  int pSensor = 0;
+  if (pSensor != sensor) {
+    MIDI.sendControlChange(02, sensor, 1);
+    pSensor = sensor;
+    delay(1000);
+
+  }
 }
