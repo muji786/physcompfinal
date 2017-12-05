@@ -65,5 +65,5 @@ void loop() {
     MIDI.sendControlChange(05, newPot5Value, 1);
     lastPot5Value = newPot5Value;
   }
-  
+//  delay(2000);
 }
