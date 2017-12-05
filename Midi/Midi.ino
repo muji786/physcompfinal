@@ -1,4 +1,8 @@
+#include <Wire.h>
 #include <MIDI.h>
+#include "I2Cdev.h"
+#include "MPU6050.h"
+
 #include <midi_Defs.h>
 #include <midi_Message.h>
 #include <midi_Namespace.h>
@@ -24,11 +28,21 @@ int lastPot3Value = 0;
 int lastPot4Value = 0;
 int lastPot5Value = 0;
 
+MPU6050 accelgyro;
+int16_t ax, ay, az;
+int16_t gx, gy, gz;
+
 void setup() {
   MIDI.begin();
+  Wire.begin();
+  accelgyro.initialize();
+
 }
 
 void loop() {
+  accelgyro.getMotion6(&ax, &ay, &az, &gx, &gy, &gz);
+  MIDI.sendControlChange(06, ax, 1);
+   
   int newPot1Value = analogRead(potSense1) / 8; // read the input pin and divide by 8 to get between 0-127 for midi
   
   // int val = map(pot, 0, 1023, 0, 127);
