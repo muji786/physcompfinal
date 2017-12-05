@@ -13,11 +13,11 @@ MIDI_CREATE_CUSTOM_INSTANCE(HardwareSerial, Serial, MIDI, MySettings);
 
 const int velocity = 127; //Max Velocity (range is 0-127)
 const int channel = 1; //MIDI Channel 1 (out of 16)
-const int potSense1 = A0;
-const int potSense2 = A1;
-const int potSense3 = A2;
-const int potSense4 = A3;
-const int potSense5 = A4;
+const int potSense1 = A1;
+const int potSense2 = A2;
+const int potSense3 = A3;
+const int potSense4 = A4;
+const int potSense5 = A5;
 int lastPot1Value = 0;
 int lastPot2Value = 0;
 int lastPot3Value = 0;
