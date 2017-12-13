@@ -11,8 +11,8 @@ struct MySettings : public midi::DefaultSettings
 
 MIDI_CREATE_CUSTOM_INSTANCE(HardwareSerial, Serial, MIDI, MySettings);
 
-const int velocity = 127; //Max Velocity (range is 0-127)
-const int channel = 1; //MIDI Channel 1 (out of 16)
+//const int velocity = 127; //Max Velocity (range is 0-127)
+//const int channel = 1; //MIDI Channel 1 (out of 16)
 const int potSense0 = A0;
 const int potSense1 = A1;
 const int potSense2 = A2;
